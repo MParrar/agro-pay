@@ -3,6 +3,8 @@
 generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["postgresqlExtensions"]
+  // rhel-openssl-3.0.x = AWS Lambda runtime used by Netlify Functions
+  binaryTargets   = ["native", "rhel-openssl-3.0.x"]
 }
 
 datasource db {

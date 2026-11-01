@@ -1,0 +1,35 @@
+[build]
+  # Applies pending DB migrations, then builds the frontend
+  command = "npm install --prefix backend && npm install --prefix frontend && npm run db:deploy --prefix backend && npm run build --prefix frontend"
+  publish = "frontend/dist"
+  functions = "backend/netlify/functions"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+[functions]
+  node_bundler = "esbuild"
+  # Prisma's query engine is a native binary; ship it as-is instead of bundling
+  external_node_modules = ["@prisma/client", ".prisma"]
+  # Keep only the Lambda engine (rhel); drop other platforms and the unused WASM engines (size limit)
+  included_files = [
+    "backend/node_modules/.prisma/client/**",
+    "!backend/node_modules/.prisma/client/libquery_engine-darwin*",
+    "!backend/node_modules/.prisma/client/libquery_engine-debian*",
+    "!backend/node_modules/.prisma/client/libquery_engine-linux*",
+    "!backend/node_modules/@prisma/client/runtime/*.wasm*",
+    "!backend/node_modules/@prisma/client/runtime/query_engine_bg.*",
+  ]
+
+# API → the Express function (rewrite, so the browser URL stays /api/...)
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/api/:splat"
+  status = 200
+  force = true
+
+# SPA fallback for React Router routes like /planilla
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

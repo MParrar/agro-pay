@@ -48,7 +48,15 @@ agro-pay-app/
    npm run dev
    ```
 
-## Production
+## Deploy on Netlify
+
+`netlify.toml` builds the frontend to the CDN and runs Express as one Netlify Function
+(`backend/netlify/functions/api.js`) behind `/api/*`. Pending Prisma migrations are
+applied during each build. Set these in Site settings → Environment variables:
+`DATABASE_URL`, `DIRECT_URL`, `ADMIN_USERNAME`, `ADMIN_PASSWORD`, `JWT_SECRET`
+(optional `JWT_EXPIRES_IN`). `CORS_ORIGIN` is not needed (same origin).
+
+## Production (standalone Node server)
 
 ```bash
 npm run build                     # builds frontend/dist
