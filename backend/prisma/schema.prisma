@@ -1,0 +1,76 @@
+// Agro-Pay database schema (Neon / PostgreSQL)
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  directUrl  = env("DIRECT_URL")
+  // citext gives us a case-insensitive UNIQUE constraint on Worker.name
+  extensions = [citext]
+}
+
+model FruitType {
+  id             Int     @id @default(autoincrement())
+  name           String
+  pricePerKg     Float   @default(0)
+  discountPerBox Float   @default(0)
+  entries        Entry[]
+
+  @@map("fruit_types")
+}
+
+model Garden {
+  id      Int     @id @default(autoincrement())
+  // Unique so the seed can upsert the default "La dehesa" garden
+  name    String  @unique
+  entries Entry[]
+
+  @@map("gardens")
+}
+
+model Group {
+  id      Int      @id @default(autoincrement())
+  name    String
+  workers Worker[]
+
+  @@map("groups")
+}
+
+model Worker {
+  id      Int     @id @default(autoincrement())
+  // citext: "Juan Pérez" and "juan pérez" collide on the unique index
+  name    String  @unique @db.Citext
+  rut     String?
+  groupId Int
+  group   Group   @relation(fields: [groupId], references: [id], onDelete: Restrict)
+  entries Entry[]
+
+  @@index([groupId])
+  @@map("workers")
+}
+
+model Entry {
+  id                     Int       @id @default(autoincrement())
+  workerId               Int
+  fruitTypeId            Int
+  gardenId               Int
+  kg                     Float     @default(0)
+  boxes                  Int       @default(0)
+  // Rates captured at the moment the entry was created
+  pricePerKgSnapshot     Float
+  discountPerBoxSnapshot Float
+  totalPaid              Float
+  createdAt              DateTime  @default(now())
+
+  worker    Worker    @relation(fields: [workerId], references: [id], onDelete: Restrict)
+  fruitType FruitType @relation(fields: [fruitTypeId], references: [id], onDelete: Restrict)
+  garden    Garden    @relation(fields: [gardenId], references: [id], onDelete: Restrict)
+
+  @@index([createdAt])
+  @@index([workerId])
+  @@map("entries")
+}

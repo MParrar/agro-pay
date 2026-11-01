@@ -1,0 +1,76 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-gray-50 text-gray-900 antialiased;
+  }
+}
+
+@layer components {
+  /* text-base (16px) on inputs prevents iOS zoom on focus */
+  .input {
+    @apply block w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-base
+      focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-600/30
+      disabled:bg-gray-100;
+  }
+  .label {
+    @apply mb-1 block text-sm font-medium text-gray-700;
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold
+      transition disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .btn-primary {
+    @apply btn bg-brand-700 text-white hover:bg-brand-800 active:bg-brand-900;
+  }
+  .btn-secondary {
+    @apply btn bg-white text-gray-700 ring-1 ring-gray-300 hover:bg-gray-50;
+  }
+  .btn-danger {
+    @apply btn bg-red-50 text-red-700 ring-1 ring-red-200 hover:bg-red-100;
+  }
+  .card {
+    @apply rounded-xl bg-white p-4 shadow-sm ring-1 ring-gray-200;
+  }
+  .alert-error {
+    @apply rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 ring-1 ring-red-200;
+  }
+  .alert-success {
+    @apply rounded-lg bg-brand-50 px-3 py-2 text-sm text-brand-800 ring-1 ring-brand-100;
+  }
+}
+
+/* ---------- Print layout (payslips) ----------
+   No fixed @page size: the browser's paper choice (A4 or Letter) is used,
+   and the fluid layout fits either. */
+@media print {
+  @page {
+    margin: 12mm;
+  }
+  html,
+  body {
+    background: #fff !important;
+    font-size: 11pt;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .payslip {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  .page-break-after {
+    break-after: page;
+    page-break-after: always;
+  }
+  table {
+    break-inside: auto;
+  }
+  tr {
+    break-inside: avoid;
+  }
+  thead {
+    display: table-header-group;
+  }
+}
