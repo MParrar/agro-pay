@@ -261,7 +261,7 @@ export default function DashboardPage() {
         {entries.length === 0 ? (
           <p className="card text-center text-sm text-gray-500">No hay registros para este día.</p>
         ) : (
-          <ul className="space-y-2">
+          <ul className="-m-1 max-h-96 space-y-2 overflow-y-auto overscroll-contain p-1">
             {entries.map((entry) => (
               <EntryRow key={entry.id} entry={entry} onEdit={setEditingEntry} onDelete={handleDelete} />
             ))}

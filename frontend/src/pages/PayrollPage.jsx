@@ -3,23 +3,31 @@ import { api, getErrorMessage } from '../api/client.js';
 import { addDays, fromInputDate, startOfWeek, toInputDate } from '../lib/dates.js';
 import { formatDate, formatMoney, formatNumber } from '../lib/format.js';
 import Payslip from '../components/Payslip.jsx';
+import { matchesWorker } from '../lib/search.js';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const MAX_RANGE_DAYS = 31; // matches the API limit
 
-function TotalsTable({ title, rows, firstColumn, extraColumn }) {
+const TABS = [
+  { id: 'workers', label: 'Trabajadores' },
+  { id: 'groups', label: 'Grupos' },
+  { id: 'gardens', label: 'Huertos' },
+];
+
+// Scrolls inside itself; the header row stays visible while scrolling
+function TotalsTable({ rows, firstColumn, extraColumn }) {
+  const th = 'sticky top-0 bg-gray-50 px-4 py-2';
   return (
     <section className="card overflow-hidden p-0">
-      <h2 className="border-b border-gray-200 px-4 py-3 font-semibold">{title}</h2>
-      <div className="overflow-x-auto">
+      <div className="max-h-96 overflow-auto overscroll-contain">
         <table className="w-full min-w-[480px] text-sm">
-          <thead className="bg-gray-50 text-left text-xs uppercase text-gray-500">
+          <thead className="text-left text-xs uppercase text-gray-500">
             <tr>
-              <th className="px-4 py-2">{firstColumn}</th>
-              {extraColumn && <th className="px-4 py-2">{extraColumn.label}</th>}
-              <th className="px-4 py-2 text-right">Kg</th>
-              <th className="px-4 py-2 text-right">Cajas</th>
-              <th className="px-4 py-2 text-right">Total</th>
+              <th className={th}>{firstColumn}</th>
+              {extraColumn && <th className={th}>{extraColumn.label}</th>}
+              <th className={`${th} text-right`}>Kg</th>
+              <th className={`${th} text-right`}>Cajas</th>
+              <th className={`${th} text-right`}>Total</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
@@ -46,6 +54,8 @@ export default function PayrollPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [onePerPage, setOnePerPage] = useState(false);
+  const [tab, setTab] = useState('workers');
+  const [workerQuery, setWorkerQuery] = useState('');
 
   const rangeStart = fromInputDate(from);
   const rangeEnd = addDays(fromInputDate(to), 1); // exclusive
@@ -88,6 +98,7 @@ export default function PayrollPage() {
   }
 
   const hasData = data && data.workers.length > 0;
+  const filteredWorkers = hasData ? data.workers.filter((w) => matchesWorker(workerQuery, w)) : [];
 
   return (
     <div className="space-y-4">
@@ -172,23 +183,62 @@ export default function PayrollPage() {
               </div>
             </div>
 
-            <TotalsTable
-              title="Pago por trabajador"
-              firstColumn="Trabajador"
-              extraColumn={{ label: 'Grupo', render: (r) => r.groupName }}
-              rows={data.workers.map((w) => ({ ...w, key: w.workerId }))}
-            />
-            <TotalsTable
-              title="Totales por grupo"
-              firstColumn="Grupo"
-              extraColumn={{ label: 'Trab.', render: (r) => r.workerCount }}
-              rows={data.byGroup.map((g) => ({ ...g, key: g.groupId }))}
-            />
-            <TotalsTable
-              title="Totales por huerto"
-              firstColumn="Huerto"
-              rows={data.byGarden.map((g) => ({ ...g, key: g.gardenId }))}
-            />
+            <div className="-mx-4 overflow-x-auto px-4">
+              <div className="inline-flex gap-1 rounded-lg bg-gray-200 p-1">
+                {TABS.map((t) => {
+                  const count = { workers: data.workers, groups: data.byGroup, gardens: data.byGarden }[t.id].length;
+                  return (
+                    <button
+                      key={t.id}
+                      onClick={() => setTab(t.id)}
+                      className={`whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium ${
+                        tab === t.id ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600'
+                      }`}
+                    >
+                      {t.label} ({count})
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {tab === 'workers' && (
+              <>
+                <input
+                  type="search"
+                  className="input"
+                  placeholder="Buscar trabajador por nombre, RUT o grupo…"
+                  aria-label="Buscar trabajador"
+                  autoComplete="off"
+                  value={workerQuery}
+                  onChange={(e) => setWorkerQuery(e.target.value)}
+                />
+                {filteredWorkers.length === 0 ? (
+                  <p className="card text-center text-sm text-gray-500">
+                    Ningún trabajador coincide con “{workerQuery}”.
+                  </p>
+                ) : (
+                  <TotalsTable
+                    firstColumn="Trabajador"
+                    extraColumn={{ label: 'Grupo', render: (r) => r.groupName }}
+                    rows={filteredWorkers.map((w) => ({ ...w, key: w.workerId }))}
+                  />
+                )}
+              </>
+            )}
+            {tab === 'groups' && (
+              <TotalsTable
+                firstColumn="Grupo"
+                extraColumn={{ label: 'Trab.', render: (r) => r.workerCount }}
+                rows={data.byGroup.map((g) => ({ ...g, key: g.groupId }))}
+              />
+            )}
+            {tab === 'gardens' && (
+              <TotalsTable
+                firstColumn="Huerto"
+                rows={data.byGarden.map((g) => ({ ...g, key: g.gardenId }))}
+              />
+            )}
           </>
         )}
       </div>

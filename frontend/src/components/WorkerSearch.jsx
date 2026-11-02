@@ -1,29 +1,13 @@
 import { forwardRef, useMemo, useState } from 'react';
-
-// Accent- and case-insensitive: "jose" matches "José"
-function normalize(text) {
-  return (text || '').normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase().trim();
-}
-
-// RUT search ignores dots and dashes: "12345678" matches "12.345.678-9"
-function normalizeRut(text) {
-  return (text || '').replace(/[.\-\s]/g, '').toLowerCase();
-}
+import { matchesWorker } from '../lib/search.js';
 
 const WorkerSearch = forwardRef(function WorkerSearch({ workers, onSelect }, inputRef) {
   const [query, setQuery] = useState('');
 
-  const matches = useMemo(() => {
-    const q = normalize(query);
-    if (!q) return workers;
-    const qRut = normalizeRut(query);
-    return workers.filter(
-      (w) =>
-        normalize(w.name).includes(q) ||
-        normalize(w.group?.name).includes(q) ||
-        (qRut && normalizeRut(w.rut).includes(qRut))
-    );
-  }, [workers, query]);
+  const matches = useMemo(
+    () => workers.filter((w) => matchesWorker(query, { name: w.name, groupName: w.group?.name, rut: w.rut })),
+    [workers, query]
+  );
 
   function select(worker) {
     setQuery('');

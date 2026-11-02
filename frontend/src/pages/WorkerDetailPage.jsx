@@ -6,6 +6,7 @@ import { formatLongDate, formatMoney, formatNumber } from '../lib/format.js';
 import { useCatalog } from '../lib/useCatalog.js';
 import EntryRow from '../components/EntryRow.jsx';
 import EntryEditDialog from '../components/EntryEditDialog.jsx';
+import WorkerGroupEditor from '../components/WorkerGroupEditor.jsx';
 
 export default function WorkerDetailPage() {
   const workerId = Number(useParams().id);
@@ -18,8 +19,10 @@ export default function WorkerDetailPage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [editingEntry, setEditingEntry] = useState(null);
+  // Latest worker data after a group change (the catalog list is loaded once)
+  const [updatedWorker, setUpdatedWorker] = useState(null);
 
-  const worker = workers.find((w) => w.id === workerId);
+  const worker = updatedWorker?.id === workerId ? updatedWorker : workers.find((w) => w.id === workerId);
   const rangeError = from && to && to < from ? '“Hasta” debe ser igual o posterior a “Desde”.' : '';
 
   useEffect(() => {
@@ -110,10 +113,17 @@ export default function WorkerDetailPage() {
 
       <div className="card">
         <h1 className="text-xl font-bold">{worker.name}</h1>
-        <p className="text-sm text-gray-500">
-          {worker.group?.name}
-          {worker.rut ? ` · RUT ${worker.rut}` : ''}
-        </p>
+        {worker.rut && <p className="text-sm text-gray-500">RUT {worker.rut}</p>}
+        <div className="mt-2">
+          <WorkerGroupEditor
+            key={worker.id}
+            worker={worker}
+            onSaved={(data) => {
+              setUpdatedWorker(data);
+              setSuccess(`${data.name} ahora pertenece a ${data.group.name}.`);
+            }}
+          />
+        </div>
       </div>
 
       <div className="card space-y-3">
