@@ -6,6 +6,8 @@
 
 [build.environment]
   NODE_VERSION = "22"
+  # The admin username is a common word that also appears in the code; it isn't a secret
+  SECRETS_SCAN_OMIT_KEYS = "ADMIN_USERNAME"
 
 [functions]
   node_bundler = "esbuild"
