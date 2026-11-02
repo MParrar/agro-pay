@@ -15,7 +15,7 @@ export default function Layout() {
     <div className="min-h-screen">
       <header className="sticky top-0 z-20 bg-brand-800 pt-[env(safe-area-inset-top)] text-white shadow print:hidden">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
-          <span className="text-lg font-bold tracking-tight">🍒 Agro-Pay</span>
+          <span className="text-lg font-bold tracking-tight">🍓 Agro-Pay</span>
 
           <nav className="hidden gap-1 md:flex">
             {NAV_ITEMS.map((item) => (

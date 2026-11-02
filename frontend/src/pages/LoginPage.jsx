@@ -25,7 +25,7 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-brand-800 to-brand-900 px-4">
       <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-4 rounded-2xl bg-white p-6 shadow-xl">
         <div className="text-center">
-          <div className="text-4xl">🍒</div>
+          <div className="text-4xl">🍓</div>
           <h1 className="mt-2 text-2xl font-bold text-gray-900">Agro-Pay</h1>
           <p className="text-sm text-gray-500">Registro de cosecha y pagos a trato</p>
         </div>
