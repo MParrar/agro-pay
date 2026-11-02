@@ -69,6 +69,10 @@ router.delete('/:id', async (req, res) => {
   const existing = await prisma.worker.findUnique({ where: { id } });
   if (!existing) throw new HttpError(404, 'Trabajador no encontrado.');
 
+  // Checked up front: RESTRICT violations (23001) don't arrive as P2003
+  if ((await prisma.entry.count({ where: { workerId: id } })) > 0) {
+    throw new HttpError(409, 'No se puede eliminar este trabajador porque tiene entregas registradas.');
+  }
   try {
     await prisma.worker.delete({ where: { id } });
   } catch (err) {

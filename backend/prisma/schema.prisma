@@ -11,13 +11,13 @@ datasource db {
   provider   = "postgresql"
   url        = env("DATABASE_URL")
   directUrl  = env("DIRECT_URL")
-  // citext gives us a case-insensitive UNIQUE constraint on Worker.name
+  // citext gives case-insensitive UNIQUE names ("La Dehesa" = "la dehesa")
   extensions = [citext]
 }
 
 model FruitType {
   id             Int     @id @default(autoincrement())
-  name           String
+  name           String  @unique @db.Citext
   pricePerKg     Float   @default(0)
   discountPerBox Float   @default(0)
   entries        Entry[]
@@ -28,7 +28,7 @@ model FruitType {
 model Garden {
   id      Int     @id @default(autoincrement())
   // Unique so the seed can upsert the default "La dehesa" garden
-  name    String  @unique
+  name    String  @unique @db.Citext
   entries Entry[]
 
   @@map("gardens")
@@ -36,7 +36,7 @@ model Garden {
 
 model Group {
   id      Int      @id @default(autoincrement())
-  name    String
+  name    String   @unique @db.Citext
   workers Worker[]
 
   @@map("groups")

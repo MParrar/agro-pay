@@ -22,6 +22,13 @@ export function errorHandler(err, req, res, next) {
         .json({ error: 'No se puede completar la operación porque hay registros asociados.' });
   }
 
+  // Postgres RESTRICT violation surfaces as an unknown Prisma error without a P-code
+  if (err?.message?.includes('23001')) {
+    return res
+      .status(409)
+      .json({ error: 'No se puede completar la operación porque hay registros asociados.' });
+  }
+
   console.error(err);
   return res.status(500).json({ error: 'Error interno del servidor.' });
 }
