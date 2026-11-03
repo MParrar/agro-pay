@@ -22,7 +22,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-brand-800 to-brand-900 px-4">
+    <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-gradient-to-b from-brand-800 to-brand-900 px-4">
       <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-4 rounded-2xl bg-white p-6 shadow-xl">
         <div className="text-center">
           <div className="text-4xl">🍓</div>
@@ -61,6 +61,10 @@ export default function LoginPage() {
           {loading ? 'Ingresando…' : 'Ingresar'}
         </button>
       </form>
+
+      <p className="text-center text-xs text-white/60">
+        © {new Date().getFullYear()} Agro-Pay · Creado por Matias Ignacio Parra Rivas
+      </p>
     </div>
   );
 }

@@ -60,6 +60,10 @@ export default function Layout() {
       <main className="mx-auto max-w-5xl px-4 py-4 print:max-w-none print:p-0">
         <Outlet />
       </main>
+
+      <footer className="mx-auto max-w-5xl px-4 pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-6 text-center text-xs text-gray-400 print:hidden">
+        © {new Date().getFullYear()} Agro-Pay · Creado por Matias Ignacio Parra Rivas
+      </footer>
     </div>
   );
 }
