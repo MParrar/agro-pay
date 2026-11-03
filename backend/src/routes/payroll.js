@@ -17,12 +17,18 @@ function currentWeekRange() {
 }
 
 function emptyTotals() {
-  return { totalKg: 0, totalBoxes: 0, totalPaid: 0, entryCount: 0 };
+  return { totalKg: 0, totalBoxes: 0, totalNetKg: 0, totalPaid: 0, entryCount: 0 };
+}
+
+// discountPerBoxSnapshot is kilos per box: totalPaid = netKg * pricePerKg
+function netKg(entry) {
+  return entry.kg - entry.boxes * entry.discountPerBoxSnapshot;
 }
 
 function addToTotals(totals, entry) {
   totals.totalKg += entry.kg;
   totals.totalBoxes += entry.boxes;
+  totals.totalNetKg += netKg(entry);
   totals.totalPaid += entry.totalPaid;
   totals.entryCount += 1;
 }
@@ -78,6 +84,7 @@ router.get('/weekly', async (req, res) => {
       fruitTypeName: entry.fruitType.name,
       kg: entry.kg,
       boxes: entry.boxes,
+      netKg: netKg(entry),
       pricePerKgSnapshot: entry.pricePerKgSnapshot,
       discountPerBoxSnapshot: entry.discountPerBoxSnapshot,
       totalPaid: entry.totalPaid,

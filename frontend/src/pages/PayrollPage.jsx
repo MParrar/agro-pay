@@ -20,13 +20,14 @@ function TotalsTable({ rows, firstColumn, extraColumn }) {
   return (
     <section className="card overflow-hidden p-0">
       <div className="max-h-96 overflow-auto overscroll-contain">
-        <table className="w-full min-w-[480px] text-sm">
+        <table className="w-full min-w-[560px] text-sm">
           <thead className="text-left text-xs uppercase text-gray-500">
             <tr>
               <th className={th}>{firstColumn}</th>
               {extraColumn && <th className={th}>{extraColumn.label}</th>}
-              <th className={`${th} text-right`}>Kg</th>
+              <th className={`${th} text-right`}>Kg Bruto</th>
               <th className={`${th} text-right`}>Cajas</th>
+              <th className={`${th} text-right`}>Kg Neto</th>
               <th className={`${th} text-right`}>Total</th>
             </tr>
           </thead>
@@ -37,6 +38,7 @@ function TotalsTable({ rows, firstColumn, extraColumn }) {
                 {extraColumn && <td className="px-4 py-2 text-gray-600">{extraColumn.render(row)}</td>}
                 <td className="px-4 py-2 text-right">{formatNumber(row.totalKg)}</td>
                 <td className="px-4 py-2 text-right">{row.totalBoxes}</td>
+                <td className="px-4 py-2 text-right">{formatNumber(row.totalNetKg)}</td>
                 <td className="px-4 py-2 text-right font-semibold">{formatMoney(row.totalPaid)}</td>
               </tr>
             ))}
@@ -179,7 +181,7 @@ export default function PayrollPage() {
               <div className="card">
                 <p className="text-xs uppercase text-gray-500">Trabajadores</p>
                 <p className="text-2xl font-bold">{data.workers.length}</p>
-                <p className="text-xs text-gray-500">{formatNumber(data.grandTotal.totalKg)} kg</p>
+                <p className="text-xs text-gray-500">{formatNumber(data.grandTotal.totalNetKg)} kg neto</p>
               </div>
             </div>
 

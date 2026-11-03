@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { api, getErrorMessage } from '../api/client.js';
 import { entryTimestamp, toInputDate } from '../lib/dates.js';
 import { previewEntry } from '../lib/calc.js';
-import { formatMoney, formatTime } from '../lib/format.js';
+import { formatMoney, formatNumber, formatTime } from '../lib/format.js';
 
 /**
  * Modal for editing an existing entry. Bottom sheet on mobile, centered on larger screens.
@@ -135,12 +135,13 @@ export default function EntryEditDialog({ entry, workers, gardens, fruitTypes, o
 
         {preview && (
           <div className={`rounded-lg px-3 py-2 text-sm ${preview.invalid ? 'bg-red-50 text-red-700' : 'bg-gray-50 text-gray-700'}`}>
-            <div className="flex justify-between"><span>Valor fruta</span><span>{formatMoney(preview.fruitValue)}</span></div>
-            <div className="flex justify-between"><span>Descuento cajas</span><span>− {formatMoney(preview.boxDiscount)}</span></div>
+            <div className="flex justify-between"><span>Kg bruto</span><span>{formatNumber(preview.grossKg)} kg</span></div>
+            <div className="flex justify-between"><span>Descuento cajas</span><span>− {formatNumber(preview.boxKg)} kg</span></div>
+            <div className="flex justify-between"><span>Kg neto</span><span>{formatNumber(preview.netKg)} kg</span></div>
             <div className="mt-1 flex justify-between border-t border-gray-200 pt-1 text-base font-bold">
               <span>Total a pagar</span><span>{formatMoney(preview.total)}</span>
             </div>
-            {preview.invalid && <p className="mt-1">El descuento por cajas supera el valor de la fruta.</p>}
+            {preview.invalid && <p className="mt-1">Los kilos descontados por cajas superan los kilos entregados.</p>}
             {keepsSnapshotRates && (
               <p className="mt-1 text-xs text-gray-500">Se mantienen los precios del registro original.</p>
             )}

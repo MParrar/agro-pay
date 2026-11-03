@@ -1,4 +1,10 @@
-import { formatDate, formatMoney, formatNumber, formatShortDay } from '../lib/format.js';
+import { formatDate, formatMoney, formatNumber, formatRate, formatShortDay } from '../lib/format.js';
+
+// Distinct box discounts in the period, e.g. "1 kg" or "0,5 y 1 kg" if rates changed
+function boxDiscounts(entries) {
+  const rates = [...new Set(entries.map((e) => e.discountPerBoxSnapshot))].sort((a, b) => a - b);
+  return `${new Intl.ListFormat('es', { type: 'conjunction' }).format(rates.map(formatNumber))} kg`;
+}
 
 export default function Payslip({ worker, start, end, pageBreak }) {
   const lastDay = new Date(new Date(end).getTime() - 1);
@@ -27,8 +33,10 @@ export default function Payslip({ worker, start, end, pageBreak }) {
             <th className="py-1 pr-2">Fecha</th>
             <th className="py-1 pr-2">Huerto</th>
             <th className="py-1 pr-2">Fruta</th>
-            <th className="py-1 pr-2 text-right">Kg</th>
+            <th className="py-1 pr-2 text-right">Precio fruta</th>
+            <th className="py-1 pr-2 text-right">Kg Bruto</th>
             <th className="py-1 pr-2 text-right">Cajas</th>
+            <th className="py-1 pr-2 text-right">Kg Neto</th>
             <th className="py-1 text-right">Total</th>
           </tr>
         </thead>
@@ -38,24 +46,30 @@ export default function Payslip({ worker, start, end, pageBreak }) {
               <td className="py-1 pr-2 capitalize">{formatShortDay(e.createdAt)}</td>
               <td className="py-1 pr-2">{e.gardenName}</td>
               <td className="py-1 pr-2">{e.fruitTypeName}</td>
+              <td className="py-1 pr-2 text-right">{formatRate(e.pricePerKgSnapshot)}</td>
               <td className="py-1 pr-2 text-right">{formatNumber(e.kg)}</td>
               <td className="py-1 pr-2 text-right">{e.boxes}</td>
+              <td className="py-1 pr-2 text-right">{formatNumber(e.netKg)}</td>
               <td className="py-1 text-right">{formatMoney(e.totalPaid)}</td>
             </tr>
           ))}
         </tbody>
         <tfoot>
           <tr className="font-semibold">
-            <td className="pt-2" colSpan={3}>Totales</td>
+            <td className="pt-2" colSpan={4}>Totales</td>
             <td className="pt-2 pr-2 text-right">{formatNumber(worker.totalKg)}</td>
             <td className="pt-2 pr-2 text-right">{worker.totalBoxes}</td>
+            <td className="pt-2 pr-2 text-right">{formatNumber(worker.totalNetKg)}</td>
             <td className="pt-2 text-right">{formatMoney(worker.totalPaid)}</td>
           </tr>
         </tfoot>
       </table>
 
       <div className="mt-4 flex items-end justify-between gap-6">
-        <p className="text-base font-bold">Total a pagar: {formatMoney(worker.totalPaid)}</p>
+        <div>
+          <p className="text-base font-bold">Total a pagar: {formatMoney(worker.totalPaid)}</p>
+          <p className="text-xs text-gray-600">Se descuenta {boxDiscounts(worker.entries)} por caja</p>
+        </div>
         <div className="w-48 border-t border-gray-500 pt-1 text-center text-xs">Firma trabajador</div>
       </div>
     </article>

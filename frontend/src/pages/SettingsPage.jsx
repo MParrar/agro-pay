@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { api } from '../api/client.js';
 import CrudSection from '../components/CrudSection.jsx';
-import { formatRate } from '../lib/format.js';
+import { formatNumber, formatRate } from '../lib/format.js';
 
 const TABS = [
   { id: 'workers', label: 'Trabajadores' },
@@ -66,7 +66,7 @@ function FruitsSection() {
       fields={[
         { name: 'name', label: 'Nombre', type: 'text', required: true },
         { name: 'pricePerKg', label: 'Precio por kilo ($)', type: 'number', required: true },
-        { name: 'discountPerBox', label: 'Descuento por caja ($)', type: 'number', required: true },
+        { name: 'discountPerBox', label: 'Descuento por caja (kg)', type: 'number', required: true },
       ]}
       toPayload={(f) => ({
         name: f.name,
@@ -82,7 +82,7 @@ function FruitsSection() {
         <>
           <p className="truncate font-semibold">{f.name}</p>
           <p className="text-xs text-gray-500">
-            {formatRate(f.pricePerKg)}/kg · −{formatRate(f.discountPerBox)}/caja
+            {formatRate(f.pricePerKg)}/kg · −{formatNumber(f.discountPerBox)} kg/caja
           </p>
         </>
       )}
