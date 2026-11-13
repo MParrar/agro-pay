@@ -83,6 +83,8 @@ export default function PayrollPage() {
   const [workerQuery, setWorkerQuery] = useState('');
   // What window.print() puts on paper: every payslip, or the current tab's table
   const [printMode, setPrintMode] = useState('payslips');
+  // Which group's payslips to print ('all' = every worker)
+  const [printGroupId, setPrintGroupId] = useState('all');
 
   const rangeStart = fromInputDate(from);
   const rangeEnd = addDays(fromInputDate(to), 1); // exclusive
@@ -144,6 +146,10 @@ export default function PayrollPage() {
     },
   };
   const currentTable = tabTables && tabTables[tab];
+
+  // Fall back to "all" if the selected group has no records in the current range
+  const printGroup = hasData ? data.byGroup.find((g) => String(g.groupId) === printGroupId) : null;
+  const payslipWorkers = !hasData ? [] : printGroup ? data.workers.filter((w) => w.groupId === printGroup.groupId) : data.workers;
 
   // Render the chosen print layout before the print dialog takes its snapshot
   function print(mode) {
@@ -207,9 +213,28 @@ export default function PayrollPage() {
               />
               Una liquidación por página
             </label>
-            <button className="btn-primary" onClick={() => print('payslips')} disabled={!hasData}>
-              🖨 Imprimir liquidaciones
-            </button>
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+              <label className="flex items-center gap-2 text-sm">
+                <span className="shrink-0">Grupo</span>
+                <select
+                  className="input"
+                  value={printGroup ? printGroupId : 'all'}
+                  onChange={(e) => setPrintGroupId(e.target.value)}
+                  disabled={!hasData}
+                >
+                  <option value="all">Todos</option>
+                  {hasData &&
+                    data.byGroup.map((g) => (
+                      <option key={g.groupId} value={String(g.groupId)}>
+                        {g.name} ({g.workerCount})
+                      </option>
+                    ))}
+                </select>
+              </label>
+              <button className="btn-primary shrink-0" onClick={() => print('payslips')} disabled={!hasData}>
+                🖨 Imprimir liquidaciones
+              </button>
+            </div>
           </div>
         </div>
 
@@ -304,13 +329,13 @@ export default function PayrollPage() {
       {/* Payslips: only rendered on paper */}
       {hasData && printMode === 'payslips' && (
         <div className="hidden print:block">
-          {data.workers.map((worker, i) => (
+          {payslipWorkers.map((worker, i) => (
             <Payslip
               key={worker.workerId}
               worker={worker}
               start={data.start}
               end={data.end}
-              pageBreak={onePerPage && i < data.workers.length - 1}
+              pageBreak={onePerPage && i < payslipWorkers.length - 1}
             />
           ))}
         </div>

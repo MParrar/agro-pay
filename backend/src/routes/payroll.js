@@ -106,11 +106,13 @@ router.get('/weekly', async (req, res) => {
   }
 
   const byName = (a, b) => a.name.localeCompare(b.name, 'es');
+  // Workers of the same group together (groups alphabetically), then by name
+  const byGroupThenName = (a, b) => a.groupName.localeCompare(b.groupName, 'es') || byName(a, b);
 
   res.json({
     start,
     end,
-    workers: [...workers.values()].sort(byName),
+    workers: [...workers.values()].sort(byGroupThenName),
     byGroup: [...groups.values()]
       .map(({ workerIds, ...row }) => ({ ...row, workerCount: workerIds.size }))
       .sort(byName),
